@@ -9,17 +9,25 @@ import 'react-native-url-polyfill/auto'
 
 
 export default function CustomDrawer(props) {
-  const handleLogout = async () => {
-    const {user, error } = await supabase.auth.signOut({
-        email: Email,
-        password: Password,
-    })
 
+  const handleLogout = async () => {
+    const { error } = await supabase.auth.signOut();
     if (error) Alert.alert(error.message);
-    else Alert.alert('Signed in');
+    else Alert.alert('Signed out');
 }
+
  
   const [profile, setProfile] = React.useState([]);
+  const [pimage, setpimage] = useState(null);
+
+  React.useEffect(() => {
+    const user = supabase.auth.user();
+const { publicURL, error:e } = supabase
+  .storage
+  .from('foodle')
+  .getPublicUrl(`pimages/${user.id}`)
+  if (!e) setpimage(publicURL);
+  }, []);
 
   React.useEffect(() => {
     (
@@ -33,15 +41,14 @@ export default function CustomDrawer(props) {
       }
     )()
   });
+  
 
-  return (
-   
-    
+  return (  
      <View style={{flex:1,justifyContent:'center'}}>
        <DrawerContentScrollView {...props}>
        {profile.map((profile) => {
        return<View key={profile.id} style={{flex:1,justifyContent:'center',alignItems:'center',marginBottom:30,marginTop:30}}>
-            <Image style={{height:80,width:80,borderRadius:40,}} source={require('../assets/ping.jpg')} />
+            <Image style={{height:80,width:80,borderRadius:40,}}source={{uri: pimage}} />
             <Text>{profile.pname}</Text>
           </View>
        })}
@@ -49,7 +56,7 @@ export default function CustomDrawer(props) {
       </DrawerContentScrollView>
       <View style={{flex:-1,alignItems:'center',marginBottom:20}}>
             <TouchableHighlight
-              onPress={handleLogout}
+              onPress={handleLogout} 
               underlayColor='#fff'
             >
               <Text>Sign Out</Text>  

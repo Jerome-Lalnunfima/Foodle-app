@@ -31,7 +31,7 @@ const [session, setSession] = React.useState(null)
     return(
 <NavigationContainer> 
        <Stack.Navigator> 
-         {session && !session.user ? 
+         {!session && !session?.user ? 
               <>
               <Stack.Screen name="Login" component={LoginScreen} />
               <Stack.Screen name="Signup" component={SignupScreen} />

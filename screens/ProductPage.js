@@ -4,7 +4,9 @@ import React from 'react';
 
 
 export default function ProductPage({navigation, route}) {
-  const {post, image} = route.params;
+  const {post, image,profile} = route.params;
+
+
   return (
     
       <View style={styles.container}>
@@ -40,7 +42,7 @@ export default function ProductPage({navigation, route}) {
                 source={require('../assets/ping.jpg')}/>
             </View>
             <TouchableOpacity onPress={() => navigation.navigate('SellerProfile')}>
-              <Text style={{fontWeight:'700',marginLeft:10}}>uuu</Text>
+              <Text style={{fontWeight:'700',marginLeft:10}}>{profile.pname}</Text>
             </TouchableOpacity>
           </View>
           <View style={{marginLeft:20,marginTop:20}}>

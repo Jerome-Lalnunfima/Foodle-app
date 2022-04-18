@@ -45,6 +45,7 @@ export default function PostScreen({navigation}) {
   const [district, setdistrict] = useState('');
   const [description, setdescription] = useState('');
   const [image, setimage] = useState({});
+  const user = supabase.auth.user();
 
   const uploadPost = async () => {
     try {
@@ -53,7 +54,7 @@ export default function PostScreen({navigation}) {
     });
     const { data: post, error } = await supabase
       .from('posts')
-        .insert([{ name: prodname, address: address, price: price, phone: phone, district: district, category: value,description:description, image: data.Key}]);
+        .insert([{ name: prodname, address: address, price: price, phone: phone, district: district, category: value,description:description, image: data.Key, user_id: user.id}]);
       
     if (uploadError) Alert.alert(uploadError.message);
 

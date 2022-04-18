@@ -7,19 +7,35 @@ import { TextInput } from 'react-native-paper';
 import * as ImagePicker from 'expo-image-picker';
 import { supabase } from '../supabase';
 import 'react-native-url-polyfill/auto';
+import {decode} from 'base64-arraybuffer'
 
 export default function ProfileScreen({navigation}) {
   const [value, setValue] = useState(null);
   const [isFocus, setIsFocus] = useState(false);
   const [image, setImage] = useState({});
+  const [pimage, setpimage] = useState(null);
 
   React.useEffect(() => {
-const user = supabase.auth.user()
+  const user = supabase.auth.user()
 setemail(user.email)
   },[]);
 
-  const editProfile = async () => {
-    
+  React.useEffect(() => {
+    const user = supabase.auth.user();
+const { publicURL, error:e } = supabase
+  .storage
+  .from('foodle')
+  .getPublicUrl(`pimages/${user.id}`)
+  if (!e) setpimage(publicURL);
+  }, []);
+
+  const editProfile = async () => {   
+    const user = supabase.auth.user();
+    let { data, error: uploadError } = await supabase.storage.from('foodle').upload(`pimages/${user.id}`, decode(image.base64), {
+      contentType: 'image/jpg',
+    });
+    if (uploadError) Alert.alert(uploadError.message);
+
     try {
       if (!profile) {
         
@@ -38,18 +54,10 @@ setemail(user.email)
     getProfile();
 
       }
-
-        // .update([{ pname: username, paddress: useraddress, pphone: userphone, pemail:email, pabout:about}]);
-        // .match([{ pname: username, paddress: useraddress, pphone: userphone, pemail:email, pabout:about}]);
-      
-    let { error: uploadError } = await supabase.storage.from('foodle').upload('images', image);
-    if (uploadError) Alert.alert('Upload error');
-
-      
-
     } catch (e) {
       console.log(e);
     }
+
   };
 
   const renderLabel = () => {
@@ -64,11 +72,13 @@ setemail(user.email)
   const pickImage = async () => {
 
     let result = await ImagePicker.launchImageLibraryAsync({
+      base64: true,
     mediaTypes: ImagePicker.MediaTypeOptions.All,
     allowsEditing: true,
     aspect: [4, 3],
     quality: 1,
   });
+    setImage(result);
 }
   const [isModalVisible, setModalVisible] = useState(false);
 
@@ -111,8 +121,9 @@ setemail(user.email)
        <View style={styles.container}>
        <View style={{flex:1,alignItems:'center'}}>
           <Image 
+          resizeMode="cover"
             style={styles.imagecontainer}
-            source={require('../assets/ping.jpg')}/>
+            source={{uri: pimage}}/>
             <View>
               <TouchableOpacity onPress={toggleModalVisibility}>
                 <Text>

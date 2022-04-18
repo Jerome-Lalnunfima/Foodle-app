@@ -11,8 +11,22 @@ import 'react-native-url-polyfill/auto'
 export default function BrowseScreen({navigation,route}) {
   const [posts, setPosts] = React.useState([]);
   const [images, setImages] = React.useState({});
+  const [profile, setProfile] = React.useState([]);
 
- 
+
+
+  React.useEffect(() => {
+    (
+      async () => {
+      const { data: profile, error } = await supabase
+        .from('profile')
+        .select('*')
+        .order('id', { ascending: false });
+      if (error) Alert.alert(error.message);
+      else setProfile(profile);
+      }
+    )()
+  }, []);
  
 
   React.useEffect(() => {
@@ -20,11 +34,10 @@ export default function BrowseScreen({navigation,route}) {
       async () => {
       const { data: posts, error } = await supabase
         .from('posts')
-        .select('*')
+        .select(`*, users (*)`)
         .order('id', { ascending: false });
       if (error) Alert.alert(error.message);
       else setPosts(posts);
-
       }
     )()
   });
@@ -60,9 +73,6 @@ const { publicURL, error:e } = supabase
                                      
             </View>
             
-
-            
-
 <ScrollView>
             <View style={{flex:1,marginTop:30}}>
               {posts.map((post) => {
@@ -77,15 +87,11 @@ const { publicURL, error:e } = supabase
                     <View style={styles.detailscontainer}>
                       <Text>{post.name}</Text>
                      
-                      <View style={{ flex: -1, flexDirection: 'row', alignItems: 'center' }}>
+                      <View  style={{ flex: -1, flexDirection: 'row', alignItems: 'center' }}>
                         <Image style={styles.avatarimg}
                           source={require('../assets/ping.jpg')}
                         />
-                     
-
-                        <Text style={{ fontWeight: '700', marginLeft: 5 }}>uu</Text>
-                    
-
+                        {/* <Text style={{ fontWeight: '700', marginLeft: 5 }}>{profile.filter(p => p.id === post.user_id)[0].pname}</Text> */}
                       </View>
 
                       <Text>{post.address}</Text>
